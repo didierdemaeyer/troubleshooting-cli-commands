@@ -1,0 +1,85 @@
+#+title: README
+* Install PowerShell on Linux
+** Install PowerShell on Linux (Ubuntu, CentOS, Debian)
+LinuxVox.com - Installing PowerShell on Linux: A Comprehensive Guide
+- https://linuxvox.com/blog/install-powershell-linux/
+**** Ubuntu
+#+begin_src shell
+# Import the Microsoft GPG key
+wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+
+# Update the package list and install PowerShell
+sudo apt-get update
+sudo apt-get install -y powershell
+#+end_src
+
+**** CentOS
+#+begin_src shell
+# Add the Microsoft repository
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
+
+# Install PowerShell
+sudo yum install -y powershell
+#+end_src
+
+**** Debian
+#+begin_src shell
+# Import the Microsoft GPG key
+wget -q https://packages.microsoft.com/config/debian/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+
+# Update the package list and install PowerShell
+sudo apt-get update
+sudo apt-get install -y powershell
+#+end_src
+**** Other Linux distros
+#+begin_src shell
+# 1️⃣ Import the Microsoft GPG key
+wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+
+# 2️⃣ Add the repository (replace <VERSION> with your Ubuntu codename, e.g. jammy, focal, bionic)
+UBUNTU_CODENAME=$(lsb_release -cs)
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] \
+      https://packages.microsoft.com/repos/microsoft-ubuntu-${UBUNTU_CODENAME}-prod $(UBUNTU_CODENAME) main" \
+      | sudo tee /etc/apt/sources.list.d/microsoft.list > /dev/null
+
+# 3️⃣ Update the package index
+sudo apt-get update
+
+# 4️⃣ Install PowerShell
+sudo apt-get install -y powershell
+#+end_src
+** Install PowerShell on MacOS
+#+begin_src shell
+# Install Homwbrew (Package Managerfor macOS or Linux)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install PowerShell
+brew install --cask powershell
+#+end_src
+** Use PowerShell on Linux/MacOS
+#+begin_src shell
+# Start PowerShell
+pwsh
+
+# Run script in PowerShell
+pwsh ./WinDiag.ps1
+pwsh ./UnifiedDiag.ps1
+
+# Compress diagnostic folders to share
+tar -czvf diagnostics.tar.gz -C /home/didier/diagnostics-* .
+Compress-Archive -Path "$HOME/WinDiag-*/" -DestinationPath "$HOME/WinDiag.zip"
+Compress-Archive -Path "$HOME/UnifiedDiag-*/" -DestinationPath "$HOME/UnifiedDiag.zip"
+#+end_src
+** Troubleshooting install/use and scripts
+*** Sanity checks (PowerShell version > 7 AND UnifiedDiag.ps1 has Unix line endings)
+#+begin_src shell
+# Verify PowerShell version (needs ≥ 7.0 for full cross‑platform compatibility)
+pwsh -Command '$PSVersionTable.PSVersion'
+
+# Ensure the script file has Unix line endings (LF) – Windows line endings (CRLF) sometimes confuse the parser.
+# If you edited the file in a Windows editor, run:
+dos2unix UnifiedDiag.ps1   # install dos2unix via apt if needed
+#+end_src
