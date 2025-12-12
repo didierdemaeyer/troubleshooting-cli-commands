@@ -227,9 +227,3 @@ Compress-Archive -Path E:\home\didier\UnifiedDiag-20251212-133737 -DestinationPa
 
 #+end_src
 
-* FEEDBACK
-- Dany: NIET TEVEEL IN DETAIL GAAN!
-  - Medestudenten waren al afgeleid na enkele commando's uit te leggen.
-- Duidelijkere demo!
-- Minder chaotisch qua structuur!
--
