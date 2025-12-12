@@ -1,1 +1,285 @@
-#+title: Presentation
+#+title: Helpdesk ticket + CLI commands
+#+subtitle: Troubleshooting
+#+author: Didier De Maeyer
+#+OPTIONS: toc:t num:t
+#+LATEX_CLASS: beamer
+
+* Helpdesk ticket: vraag
+[[./screenshots/helpdesk-01-vraag.png]]
+* Helpdesk ticket: antwoorden (1)
+[[./screenshots/helpdesk-02-antwoord.png]]
+* Helpdesk ticket: antwoorden (2)
+[[./screenshots/helpdesk-03-antwoord.png]]
+* Helpdesk ticket: antwoorden (3)
+[[./screenshots/helpdesk-04-antwoord-01.png]]
+* Helpdesk ticket: antwoorden (3)
+[[./screenshots/helpdesk-04-antwoord-02.png]]
+[[./screenshots/helpdesk-04-antwoord-03.png]]
+* Helpdesk ticket: antwoorden (4)
+[[./screenshots/helpdesk-05-antwoord-01.png]]
+[[./screenshots/helpdesk-05-antwoord-02.png]]
+* Helpdesk ticket: antwoorden (5)
+[[./screenshots/helpdesk-06-antwoord-01.png]]
+[[./screenshots/helpdesk-06-antwoord-02.png]]
+* Helpdesk ticket: antwoorden (6)
+[[./screenshots/helpdesk-07-antwoord.png]]
+* Helpdesk ticket: antwoorden (7)
+[[./screenshots/helpdesk-08-antwoord-01.png]]
+* Helpdesk ticket: antwoorden (7)
+[[./screenshots/helpdesk-08-antwoord-02.png]]
+[[./screenshots/helpdesk-08-antwoord-03.png]]
+* CLI commands/scripts (1)
+OS:
+- Windows (PowerShell / Command Prompt / WSL)
+- MacOS (Terminal / iTerm2)
+- Linux (Konsole, xterm, Alacritty)
+
+Shells:
+- bash (Born Again Shell)
+- zsh (Z Shell)
+- fish (Friendly Interactive Shell)
+- ...
+
+* CLI commands/script (2)
+- https://github.com/didierdemaeyer/troubleshooting-cli-commands
+  - *README.org*          => Overzicht CLI commands
+  - *presentation.org*    => Presentatie
+  - *WinDiag.ps1*          => Script voor Windows
+  - *./diagnostics.sh*      => Script voor MacOS / Linux
+  - *UnifiedDiag.ps1*       => Script voor Windows / MacOS / Linux (PowerShell)
+* CLI commands Windows (1)
+- CMD = Command Prompt
+- PS = PowerShell
+
+#+begin_src shell
+# NETWORK
+ipconfig
+ping <host>
+tracert <host>
+nslookup <domain>
+netstat -ano
+netsh advfirewall firewall add rule ...
+
+# PROCESSES / SERVICES
+tasklist / Get-Process
+taskkill / Stop-Process
+sc query / Get-Service
+sc start / Start-Service
+sc stop / Stop-Service
+#+end_src
+
+* CLI commands Windows (2)
+- CMD = Command Prompt
+- PS = PowerShell
+
+#+begin_src shell
+# FILES / DISKS
+sfc /scannow
+DISM /Online /Cleanup-Image /RestoreHealth
+chkdsk C: /f /r
+robocopy
+
+# LOGS / MONITOR / OVERVIEW
+powercfg /energy
+Get-EventLog -LogName System
+wmic
+powershell.exe -ExecutionPolicy Bypass -File script.ps1
+#+end_src
+
+* CLI commands MacOS (1)
+- sudo = SuperUser DO
+
+#+begin_src shell
+# NETWORK
+ifconfig / ipconfig getifaddr en0
+ping <host>
+traceroute <host>
+dig <domain>
+sudo lsof -iTCP -sTCP:LISTEN
+sudo dscacheutil -flushcache; sudo killall
+   -HUP mDNSResponder
+
+# PROCESSES
+ps aux / top
+launchctl list
+
+# FILES / DISKS
+diskutil list / diskutil verifyVolume /
+fsck -fy
+#+end_src
+
+* CLI commands MacOS (2)
+- sudo = SuperUser DO
+
+#+begin_src shell
+# UPDATES
+sudo softwareupdate -l
+sudo softwareupdate -i -a
+
+# CONFIG
+defaults read <config.key>
+defaults write <config.key> <value>
+
+# SYSTEM / MONITOR
+system_profiler SPHardwareDataType
+networksetup -listallhardwareports
+pmset -g batt
+
+# HOMEBREW (not default)
+brew doctor
+brew update && brew upgrade
+#+end_src
+
+#+RESULTS:
+
+* CLI commands Linux (1)
+- sudo = SuperUser DO
+
+#+begin_src shell
+# NETWORK
+ip addr show / ifconfig
+ping <host>
+traceroute <host> / tracepath <host>
+dig <domain> / nslookup <domain>
+ss -tulnp / netstat -tulnp
+iptables -L -v -n / nft list ruleset
+# sudo systemd-resolve --flush-caches # TODO
+
+# PROCESSES / SERVICES
+top / htop
+ps aux | grep <pattern> # TODO
+systemctl status <service>
+systemctl restart <service>
+systemctl start <service>
+systemctl stop <service>
+#+end_src
+
+* CLI commands Linux (2)
+- sudo = SuperUser DO
+
+#+begin_src shell
+# FILES / DISKS
+df -h
+du -sh /path/*
+fsck /dev/sdX
+chmod
+chown
+rsync -avz /src/ /dst/
+
+# UPDATES
+apt update && sudo apt upgrade -y # TODO: Debian/Ubuntu
+dnf update -y # TODO: Fedora
+pacman -Syu # TODO: Arch
+snap refresh # TODO
+#+end_src
+
+* CLI commands Linux (3)
+- sudo = SuperUser DO
+
+#+begin_src shell
+# LOGS
+journalctl -xe
+sudo dmesg | less # TODO
+
+# SYSTEM
+lshw -short
+lspc
+lsusb
+#+end_src
+
+* Install PowerShell on MacOS
+#+begin_src shell
+# Install Homwbrew (Package Managerfor macOS or Linux)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install PowerShell
+brew install --cask powershell
+#+end_src
+
+
+* Install PowerShell on Linux (Ubuntu)
+#+begin_src shell
+# Import the Microsoft GPG key
+wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
+   -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+
+# Update the package list and install PowerShell
+sudo apt-get update
+sudo apt-get install -y powershell
+#+end_src
+
+* CLI scripts using these commands (Windows)
+- WORK IN PROGRESS
+
+#+begin_src shell
+# Run script in PowerShell
+./WinDiag.ps1
+./UnifiedDiag.ps1
+
+# Compress diagnostic folders to share
+Compress-Archive -Path "$HOME/WinDiag-*/"
+   -DestinationPath "$HOME/WinDiag.zip"
+Compress-Archive -Path "$HOME/UnifiedDiag-*/"
+   -DestinationPath "$HOME/UnifiedDiag.zip"
+#+end_src
+
+
+* CLI scripts using these commands (MacOS / Linux)
+- WORK IN PROGRESS
+
+#+begin_src shell
+# Start PowerShell
+pwsh
+
+# Run script in PowerShell
+pwsh ./WinDiag.ps1
+pwsh ./UnifiedDiag.ps1
+
+# Compress diagnostic folders to share
+tar -czvf diagnostics.tar.gz -C /home/didier/diagnostics-* .
+Compress-Archive -Path "$HOME/WinDiag-*/"
+   -DestinationPath "$HOME/WinDiag.zip"
+Compress-Archive -Path "$HOME/UnifiedDiag-*/"
+   -DestinationPath "$HOME/UnifiedDiag.zip"
+#+end_src
+
+* Sanity checks (PowerShell version > 7 AND UnifiedDiag.ps1 has Unix line endings)
+
+#+begin_src shell
+# Verify PowerShell version (needs ≥ 7.0 for full
+# cross‑platform compatibility)
+pwsh -Command '$PSVersionTable.PSVersion'
+
+# Ensure the script file has Unix line endings (LF)
+# Windows line endings (CRLF) sometimes confuse the parser.
+# If you edited the file in a Windows editor, run:
+# install dos2unix via apt if needed
+dos2unix UnifiedDiag.ps1
+#+end_src
+
+* Waarom CLI gebruiken ipv GUI?
+- GUI te traag of werkt niet => CLI is sneller en werkt misschien nog wel
+- Veel CLI commands zijn standaard beschikbaar in OS
+- Output eenvoudig te delen en doorzoekbaar
+- Consistente diagnose info (voor tickets/logs/docs/...)
+- Scripts nog uitbreidbaar met meer diagnose commands
+
+* Waarom CLI gebruiken ipv GUI?
+Voorbeeld scenarios:
+1. Support ticket doorgeven aan collega
+   - 1st line: diagnose/troubleshooting -> geen oplossing?
+   - add zipped diagnostic info/rapport to ticket
+   - 2nd/3rd line: blij :D
+2. 20 PCs met problemen op verschillende locaties
+   - script automatisch uitvoeren vanop afstand en output/logs opslaan op centrale server
+   - alle logs te bekijken op centrale plaats
+   - AI systeem mogelijk: logs bekijken, mogelijke oorzaken/oplossingen bedenken (en hieruit leren)
+3. Troubleshooting/Diagnose op servers
+   - vaak geen GUI mogelijk op servers
+
+* Einde
+[[./screenshots/thanks-for-listening.jpg]]
+
+* EINDE !!!
+[[./screenshots/thanks-dont-make-questions.jpg]]

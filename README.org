@@ -1,5 +1,5 @@
 #+title: README
-* Install PowerShell on Linux
+* Install and use PowerShell on Linux/MacOS
 ** Install PowerShell on Linux (Ubuntu, CentOS, Debian)
 LinuxVox.com - Installing PowerShell on Linux: A Comprehensive Guide
 - https://linuxvox.com/blog/install-powershell-linux/
@@ -83,3 +83,153 @@ pwsh -Command '$PSVersionTable.PSVersion'
 # If you edited the file in a Windows editor, run:
 dos2unix UnifiedDiag.ps1   # install dos2unix via apt if needed
 #+end_src
+
+* Common CLI commands (included with OS)
+** Windows (Command Prompt & PowerShell)
+- CMD = Command Prompt
+- PS = PowerShell
+
+#+begin_src shell
+# NETWORK
+ipconfig # CMD/PS: View and troubleshoot IP configuration (addresses, DNS, gateway).
+ping <host> # CMD/PS: Test basic network connectivity and latency.
+tracert <host> # CMD: Trace the route packets take to a destination - useful for spotting routing issues.
+nslookup <domain> # CMD/PS: Query DNS records manually.
+netstat -ano # CMD: List active connections, listening ports, and owning process IDs.
+netsh advfirewall firewall add rule ... # CMD: Add, modify, or remove Windows Firewall rules programmatically.
+
+# PROCESSES / SERVICES
+tasklist / Get-Process # CMD/PS: Enumerate running processes.
+taskkill / Stop-Process # CMD/PS: Stop running processes.
+sc query / Get-Service # CMD/PS: Inspect service status.
+sc start / Start-Service # CMD/PS: Start services.
+sc stop / Stop-Service # CMD/PS: Stop services.
+
+# FILES / DISKS
+sfc /scannow # CMD (admin): Run System File Checker to repair corrupted system files.
+DISM /Online /Cleanup-Image /RestoreHealth # CMD (admin): Repair the Windows image. Often paired with command: sfc.
+chkdsk C: /f /r # CMD (admin): Scan and fix filesystem errors on a drive.
+robocopy # CMD: Robust file-copy utility with mirroring, retry, and logging options.
+
+# LOGS / MONITOR / OVERVIEW
+powercfg /energy # CMD (admin): Generate a detailed power-usage report. Handy for sleep/hibernation problems.
+Get-EventLog -LogName System # PS: Pull recent system event logs. You can filter them by ID, level, etc.
+wmic # CMD: Legacy WMI interface for querying hardware/software info (e.g. wmic cpu get loadpercentage).
+powershell.exe -ExecutionPolicy Bypass -File script.ps1 # CMD: Run a PowerShell script from the classic console (CMD?) when needed.
+#+end_src
+** MacOS (Terminal - Bash/Zsh + native utilities)
+- sudo = SuperUser DO
+
+#+begin_src shell
+# NETWORK
+ifconfig / ipconfig getifaddr en0 # Show network interfaces and IP addresses.
+ping <host> # Basic connectivity test.
+traceroute <host> # Route tracing (macOS ships with traceroute by default).
+dig <domain> # DNS lookup with detailed record output.
+networksetup -listallhardwareports # Map hardware ports to device names (e.g. Wi-Fi = en0).
+sudo lsof -iTCP -sTCP:LISTEN # List processes listening on TCP ports.
+sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder # Flush DNS cache.
+
+# PROCESSES
+ps aux / top # Process inspection. (htop offers a nicer UI, can be installed via Homebrew).
+launchctl list # View launch agents/daemons status.
+
+# FILES / DISKS
+diskutil list / diskutil verifyVolume / # Disk enumeration and health checks.
+fsck -fy # RUN FROM RECOVERY: Filesystem consistency check.
+
+# UPDATES
+sudo softwareupdate -l # List macOS software updates.
+sudo softwareupdate -i -a # Install macOS software updates.
+
+# CONFIG
+defaults read <config.key> # Query/List macOS preferences (plists).
+defaults write <config.key> <value> # Modify macOS preferences (plists).
+
+# SYSTEM / MONITOR
+system_profiler SPHardwareDataType # Quick hardware summary.
+pmset -g batt # Battery status and power-management settings.
+
+# HOMEBREW
+brew doctor # Homebrew health check.
+brew update && brew upgrade # Homebrew update package lists and upgrade all installed packages.
+#+end_src
+** Linux (Bash/Zsh - distro-agnostic core utilities)
+- sudo = SuperUser DO
+
+#+begin_src shell
+# NETWORK
+ip addr show / ifconfig # Network interface details (modern distros favor ip).
+ping <host> # Connectivity test.
+traceroute <host> / tracepath <host> # Route tracing.
+dig <domain> / nslookup <domain> # DNS queries.
+ss -tulnp / netstat -tulnp # List listening sockets with associated processes.
+iptables -L -v -n / nft list ruleset # Inspect firewall rules.
+# sudo systemd-resolve --flush-caches # TODO: Flush DNS cache (systemd-resolved).
+
+# PROCESSES / SERVICES
+top / htop # Real-time process monitoring.
+ps aux | grep <pattern> # TODO
+systemctl status <service> # Show status of a systemd service.
+systemctl restart <service> # Restart a systemd service.
+systemctl start <service> # Start a systemd service.
+systemctl stop <service> # Stop a systemd service.
+
+# FILES / DISKS
+df -h # Disk usage overview.
+du -sh /path/* # Disk usage overview of a specific path.
+fsck /dev/sdX # RUN FROM RESCUE MODE: Filesystem integrity check.
+chmod # Adjust file/folder permissions.
+chown # Adjust file/folder ownership.
+rsync -avz /src/ /dst/ # Efficient file sync/backups.
+
+# UPDATES
+apt update && sudo apt upgrade -y # TODO: Debian/Ubuntu: Update APT package lists and upgrade all installed packages.
+dnf update -y # TODO: Fedora: Update package lists and upgrade installed packages.
+pacman -Syu # TODO: Arch: Update package lists and upgrade all installed packages.
+snap refresh # Refresh Snap packages.
+
+# LOGS
+journalctl -xe # View recent system logs (filtered with context).
+sudo dmesg | less # TODO
+
+# SYSTEM
+lshw -short # Hardware inventory.
+lspc
+lsusb
+
+#+end_src
+* DEMO
+#+begin_src shell
+# Overzicht van draaiende processen
+Get-Process
+# Process stoppen -> explorer
+Stop-Process <PID>
+
+# Overzicht van services
+Get-Service
+
+# Scan integriteit van Windows systeem bestanden
+sfc /verifyonly
+# Scan en herstel Windows systeem bestanden
+sfc /scannow
+# Power config errors/warnings
+powercfg /energy
+
+# Bekijk laatste 100 System logs
+Get-EventLog -LogName System -Newest 100
+
+# Diagnose script
+./UnifiedDiag.ps1
+
+# ZIP diagnose bestanden voor delen
+Compress-Archive -Path E:\home\didier\UnifiedDiag-20251212-133737 -DestinationPath E:\home\didier\UnifiedDiag-20251212-133737.zip
+
+#+end_src
+
+* FEEDBACK
+- Dany: NIET TEVEEL IN DETAIL GAAN!
+  - Medestudenten waren al afgeleid na enkele commando's uit te leggen.
+- Duidelijkere demo!
+- Minder chaotisch qua structuur!
+-
